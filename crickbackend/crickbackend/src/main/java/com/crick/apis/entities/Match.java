@@ -1,6 +1,5 @@
 package com.crick.apis.entities;
 
-import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -12,12 +11,8 @@ import java.util.Date;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@Entity
-@Table(name = "crick_match")
 public class Match {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int matchId;
 
     private String teamHeading;
@@ -36,7 +31,6 @@ public class Match {
 
     private String textComplete;
 
-    @Enumerated
     private MatchStatus status;
 
 

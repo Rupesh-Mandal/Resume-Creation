@@ -1,7 +1,6 @@
 package com.crick.apis.services.impl;
 
 import com.crick.apis.entities.Match;
-import com.crick.apis.repositories.MatchRepo;
 import com.crick.apis.services.CricketService;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -16,10 +15,8 @@ import java.util.*;
 public class CricketServiceImpl implements CricketService {
 
 
-    private MatchRepo matchRepo;
 
-    public CricketServiceImpl(MatchRepo matchRepo) {
-        this.matchRepo = matchRepo;
+    public CricketServiceImpl() {
     }
 
     @Override
@@ -61,10 +58,6 @@ public class CricketServiceImpl implements CricketService {
 
 //                update the match in database
 
-
-                updateMatch(match1);
-
-
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -72,18 +65,6 @@ public class CricketServiceImpl implements CricketService {
         return matches;
     }
 
-    private void updateMatch(Match match1) {
-
-        Match match = this.matchRepo.findByTeamHeading(match1.getTeamHeading()).orElse(null);
-        if (match == null) {
-            this.matchRepo.save(match1);
-        } else {
-
-            match1.setMatchId(match.getMatchId());
-            this.matchRepo.save(match1);
-        }
-
-    }
 
     @Override
     public List<List<String>> getCWC2023PointTable() {
@@ -126,6 +107,6 @@ public class CricketServiceImpl implements CricketService {
 
     @Override
     public List<Match> getAllMatches() {
-        return this.matchRepo.findAll();
+        return getLiveMatchScores();
     }
 }
