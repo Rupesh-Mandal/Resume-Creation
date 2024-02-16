@@ -397,7 +397,8 @@ public class TestResultController {
         document.add(headerTable);
         setLine(document,5,5);
 
-        wrongAnswerValue(document,montserratFont,"1","What is Java?","MCQ","Java is Database.","Java is programming language.");
+        wrongAnswerValue(document,montserratFont,"1","What is the difference between equals() and == in Java?"
+                ,"MCQ","They are interchangeable and can be used for both primitive and object types.","equals() compares the content of objects, while ==.");
         wrongAnswerValue(document,montserratFont,"2","What is Java?","MCQ","Java is Database.","Java is programming language.");
         wrongAnswerValue(document,montserratFont,"3","What is Java?","MCQ","Java is Database.","Java is programming language.");
         wrongAnswerValue(document,montserratFont,"4","What is Java?","MCQ","Java is Database.","Java is programming language.");
