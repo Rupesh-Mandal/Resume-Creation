@@ -1,8 +1,6 @@
 package com.example.resumecreation;
 
-import com.example.resumecreation.job_dto.JobDto;
-import com.example.resumecreation.job_dto.JobKeyResponsibilityEntity;
-import com.example.resumecreation.job_dto.JobRequirementEntity;
+import com.example.resumecreation.job_dto.*;
 import com.itextpdf.io.image.ImageDataFactory;
 import com.itextpdf.kernel.colors.Color;
 import com.itextpdf.kernel.colors.DeviceRgb;
@@ -14,6 +12,7 @@ import com.itextpdf.layout.Document;
 import com.itextpdf.layout.borders.Border;
 import com.itextpdf.layout.borders.SolidBorder;
 import com.itextpdf.layout.element.*;
+import com.itextpdf.layout.properties.BorderRadius;
 import com.itextpdf.layout.properties.TextAlignment;
 import com.itextpdf.layout.properties.UnitValue;
 import com.itextpdf.text.DocumentException;
@@ -22,6 +21,7 @@ import lombok.RequiredArgsConstructor;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Element;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.FileCopyUtils;
@@ -35,7 +35,9 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
+import java.util.HashSet;
 import java.util.Objects;
+import java.util.Set;
 
 @RequiredArgsConstructor
 @RestController
@@ -100,8 +102,9 @@ public class JobDetailPdfController {
         DeviceRgb greenRgb = new DeviceRgb(34, 139, 34);
         Color greenColor = greenRgb; // Specify RGB values
 
+        ClassPathResource resource = new ClassPathResource("/static/logo_kakoo.png");
 
-        Image image = new Image(ImageDataFactory.create("/home/rupesh-mandal/IdeaProjects/CrickInformer/crickbackend/Resume Creation/src/main/resources/static/logo_kakoo.png"));
+        Image image = new Image(ImageDataFactory.create(resource.getURL()));
         image.setMargins(5, 0, 5, 0);
         image.scaleToFit(200f, 50f);
         Cell imageCell = new Cell();
@@ -116,6 +119,7 @@ public class JobDetailPdfController {
         invoiceTitle1.setFontSize(12);
         invoiceTitle1.setFont(montserratFont);
         invoiceTitle1.setMarginTop(-5);
+        invoiceTitle1.setBold();
         document.add(invoiceTitle1);
 
 
@@ -130,9 +134,360 @@ public class JobDetailPdfController {
 
         addJobKeyResponsbilities(document, montserratFont, jobDto);
         addJobRequirements(document, montserratFont, jobDto);
+        addLocation(document, montserratFont, jobDto);
+        addSkills(document, montserratFont, jobDto);
+        addSpokenLanguages(document, montserratFont, jobDto);
+        addOtherDetails(document, montserratFont, jobDto);
 
         document.close();
         return baos;
+    }
+
+    private void addOtherDetails(Document document, PdfFont montserratFont, JobDto jobDto) {
+
+
+        Paragraph summeryTitle = new Paragraph("Other Details");
+        summeryTitle.setTextAlignment(TextAlignment.LEFT);
+        summeryTitle.setFontSize(14);
+        summeryTitle.setFont(montserratFont);
+        summeryTitle.setMarginTop(8);
+        document.add(summeryTitle);
+
+        setLine(document, 0, 0);
+
+        Table secondTable = new Table(UnitValue.createPercentArray(4)).useAllAvailableWidth();
+
+        if (!Objects.isNull(jobDto.getWorkTypeEntity())) {
+            setWorkType(secondTable, montserratFont, jobDto.getWorkTypeEntity());
+        }
+
+        if (!Objects.isNull(jobDto.getEmploymentTypeEntity())) {
+            setEmployementType(secondTable, montserratFont, jobDto.getEmploymentTypeEntity());
+        }
+
+        if (!Objects.isNull(jobDto.getTotalExperience()) && !jobDto.getTotalExperience().equals(0)) {
+            setTotalExperience(secondTable, montserratFont, jobDto.getTotalExperience());
+        }
+
+        if (!Objects.isNull(jobDto.getRecruitmentQuota()) && !jobDto.getRecruitmentQuota().equals(0)) {
+            setRecurmentQuata(secondTable, montserratFont, jobDto.getRecruitmentQuota());
+        }
+
+
+        document.add(secondTable);
+
+
+    }
+
+    private void addSpokenLanguages(Document document, PdfFont montserratFont, JobDto jobDto) {
+        Set<String> languageListSet = new HashSet<>();
+        if (!Objects.isNull(jobDto.getSpokenLanguageEntities()) && !jobDto.getSpokenLanguageEntities().isEmpty()) {
+            for (SpokenLanguageEntity spokenLanguageEntity : jobDto.getSpokenLanguageEntities()) {
+                languageListSet.add(spokenLanguageEntity.getName());
+            }
+        }
+        if (languageListSet.isEmpty()) return;
+        Paragraph summeryTitle = new Paragraph("Languages");
+        summeryTitle.setTextAlignment(TextAlignment.LEFT);
+        summeryTitle.setFontSize(14);
+        summeryTitle.setFont(montserratFont);
+        summeryTitle.setMarginTop(8);
+        document.add(summeryTitle);
+
+        setLine(document, 0, 0);
+
+        Paragraph languageList = new Paragraph();
+        for (String s : languageListSet) {
+            String name = Jsoup.parse(s).text();
+            Paragraph skillItem = new Paragraph(name);
+            skillItem.setFontSize(10);
+            skillItem.setMarginLeft(5);
+            skillItem.setMarginRight(5);
+            skillItem.setPaddingRight(5); // Set padding
+            skillItem.setPaddingLeft(5); // Set padding
+            skillItem.setBorderRadius(new BorderRadius(10));
+            skillItem.setFont(montserratFont);
+            skillItem.setBackgroundColor(new DeviceRgb(248, 248, 248));// Set background color
+            languageList.add(skillItem);
+        }
+        document.add(languageList);
+    }
+
+    private void addSkills(Document document, PdfFont montserratFont, JobDto jobDto) {
+        Set<String> skillListSet = new HashSet<>();
+        if (!Objects.isNull(jobDto.getSkillListEntities()) && !jobDto.getSkillListEntities().isEmpty()) {
+            for (SkillListEntity skillListEntity : jobDto.getSkillListEntities()) {
+                skillListSet.add(skillListEntity.name);
+            }
+        }
+
+        if (!Objects.isNull(jobDto.getOtherSkills()) && !jobDto.getOtherSkills().isEmpty()) {
+            for (OtherSkillForJobEntity otherSkill : jobDto.getOtherSkills()) {
+                skillListSet.add(otherSkill.name);
+            }
+        }
+        if (skillListSet.isEmpty()) return;
+
+
+        Paragraph summeryTitle = new Paragraph("Skills");
+        summeryTitle.setTextAlignment(TextAlignment.LEFT);
+        summeryTitle.setFontSize(14);
+        summeryTitle.setFont(montserratFont);
+        summeryTitle.setMarginTop(8);
+        document.add(summeryTitle);
+
+        setLine(document, 0, 0);
+
+        Paragraph skillList = new Paragraph();
+        for (String s : skillListSet) {
+            String name = Jsoup.parse(s).text();
+            Paragraph skillItem = new Paragraph(name);
+            skillItem.setFontSize(10);
+            skillItem.setMarginLeft(5);
+            skillItem.setMarginRight(5);
+            skillItem.setPaddingRight(5); // Set padding
+            skillItem.setPaddingLeft(5); // Set padding
+            skillItem.setBorderRadius(new BorderRadius(10));
+            skillItem.setFont(montserratFont);
+            skillItem.setBackgroundColor(new DeviceRgb(248, 248, 248));// Set background color
+            skillList.add(skillItem);
+        }
+        document.add(skillList);
+
+    }
+
+    private void addLocation(Document document, PdfFont montserratFont, JobDto jobDto) {
+        if (Objects.isNull(jobDto.getRegionList()) || jobDto.getRegionList().isEmpty()) return;
+
+        Paragraph summeryTitle = new Paragraph("Location");
+        summeryTitle.setTextAlignment(TextAlignment.LEFT);
+        summeryTitle.setFontSize(14);
+        summeryTitle.setFont(montserratFont);
+        summeryTitle.setMarginTop(8);
+        document.add(summeryTitle);
+
+        setLine(document, 0, 0);
+
+        Table secondTable = new Table(UnitValue.createPercentArray(4)).useAllAvailableWidth();
+        setCountry(secondTable, montserratFont, jobDto.getRegionList());
+        if (!Objects.isNull(jobDto.getStateEntities()) && !jobDto.getStateEntities().isEmpty()) {
+            setState(secondTable, montserratFont, jobDto.getStateEntities());
+        }
+        if (!Objects.isNull(jobDto.getCityEntities()) && !jobDto.getCityEntities().isEmpty()) {
+            setCity(secondTable, montserratFont, jobDto.getCityEntities());
+        }
+        if (!Objects.isNull(jobDto.getPostalCode()) && !jobDto.getPostalCode().equals(0)) {
+            setPostalCodes(secondTable, montserratFont, jobDto.getPostalCode());
+        }
+        document.add(secondTable);
+
+    }
+
+    private void setPostalCodes(Table table, PdfFont montserratFont, Long postalCode) {
+        List fromList = new List();
+        fromList.setListSymbol("");
+
+        ListItem fromTitle = new ListItem("Postal Code");
+        fromTitle.setTextAlignment(TextAlignment.LEFT);
+        fromTitle.setFontSize(9);
+        fromTitle.setBold();
+        fromTitle.setFontColor(grayRgb);
+        fromTitle.setFont(montserratFont);
+        fromList.add(fromTitle);
+
+        ListItem companyTitle = new ListItem("\u2022 " + postalCode);
+        companyTitle.setTextAlignment(TextAlignment.LEFT);
+        companyTitle.setFontSize(8);
+        companyTitle.setFont(montserratFont);
+        fromList.add(companyTitle);
+
+
+        Cell fromDetailCell = new Cell();
+        fromDetailCell.add(fromList);
+        fromDetailCell.setBorder(Border.NO_BORDER); // Remove borders for this specific cell
+        table.addCell(fromDetailCell);
+    }
+
+    private void setWorkType(Table table, PdfFont montserratFont, WorkTypeEntity workTypeEntity) {
+        List fromList = new List();
+        fromList.setListSymbol("");
+
+        ListItem fromTitle = new ListItem("Work Type");
+        fromTitle.setTextAlignment(TextAlignment.LEFT);
+        fromTitle.setFontSize(9);
+        fromTitle.setBold();
+        fromTitle.setFontColor(grayRgb);
+        fromTitle.setFont(montserratFont);
+        fromList.add(fromTitle);
+
+        ListItem companyTitle = new ListItem(workTypeEntity.getName());
+        companyTitle.setTextAlignment(TextAlignment.LEFT);
+        companyTitle.setFontSize(8);
+        companyTitle.setFont(montserratFont);
+        fromList.add(companyTitle);
+
+
+        Cell fromDetailCell = new Cell();
+        fromDetailCell.add(fromList);
+        fromDetailCell.setBorder(Border.NO_BORDER); // Remove borders for this specific cell
+        table.addCell(fromDetailCell);
+    }
+
+    private void setEmployementType(Table table, PdfFont montserratFont, ResumeDataDto.EmploymentTypeEntity employmentTypeEntity) {
+        List fromList = new List();
+        fromList.setListSymbol("");
+
+        ListItem fromTitle = new ListItem("Employment Type");
+        fromTitle.setTextAlignment(TextAlignment.LEFT);
+        fromTitle.setFontSize(9);
+        fromTitle.setBold();
+        fromTitle.setFontColor(grayRgb);
+        fromTitle.setFont(montserratFont);
+        fromList.add(fromTitle);
+
+        ListItem companyTitle = new ListItem(employmentTypeEntity.getName());
+        companyTitle.setTextAlignment(TextAlignment.LEFT);
+        companyTitle.setFontSize(8);
+        companyTitle.setFont(montserratFont);
+        fromList.add(companyTitle);
+
+
+        Cell fromDetailCell = new Cell();
+        fromDetailCell.add(fromList);
+        fromDetailCell.setBorder(Border.NO_BORDER); // Remove borders for this specific cell
+        table.addCell(fromDetailCell);
+    }
+
+    private void setTotalExperience(Table table, PdfFont montserratFont, Long experience) {
+        List fromList = new List();
+        fromList.setListSymbol("");
+
+        ListItem fromTitle = new ListItem("Total Experience");
+        fromTitle.setTextAlignment(TextAlignment.LEFT);
+        fromTitle.setFontSize(9);
+        fromTitle.setBold();
+        fromTitle.setFontColor(grayRgb);
+        fromTitle.setFont(montserratFont);
+        fromList.add(fromTitle);
+
+        ListItem companyTitle = new ListItem(experience+"");
+        companyTitle.setTextAlignment(TextAlignment.LEFT);
+        companyTitle.setFontSize(8);
+        companyTitle.setFont(montserratFont);
+        fromList.add(companyTitle);
+
+
+        Cell fromDetailCell = new Cell();
+        fromDetailCell.add(fromList);
+        fromDetailCell.setBorder(Border.NO_BORDER); // Remove borders for this specific cell
+        table.addCell(fromDetailCell);
+    }
+
+    private void setRecurmentQuata(Table table, PdfFont montserratFont, String recurirmentQuata) {
+        List fromList = new List();
+        fromList.setListSymbol("");
+
+        ListItem fromTitle = new ListItem("Recruitment Quota");
+        fromTitle.setTextAlignment(TextAlignment.LEFT);
+        fromTitle.setFontSize(9);
+        fromTitle.setBold();
+        fromTitle.setFontColor(grayRgb);
+        fromTitle.setFont(montserratFont);
+        fromList.add(fromTitle);
+
+        ListItem companyTitle = new ListItem(recurirmentQuata+"");
+        companyTitle.setTextAlignment(TextAlignment.LEFT);
+        companyTitle.setFontSize(8);
+        companyTitle.setFont(montserratFont);
+        fromList.add(companyTitle);
+
+
+        Cell fromDetailCell = new Cell();
+        fromDetailCell.add(fromList);
+        fromDetailCell.setBorder(Border.NO_BORDER); // Remove borders for this specific cell
+        table.addCell(fromDetailCell);
+    }
+
+    private void setCity(Table table, PdfFont montserratFont, java.util.List<ResumeDataDto.CityEntity> cityEntities) {
+
+        List fromList = new List();
+        fromList.setListSymbol("");
+
+        ListItem fromTitle = new ListItem("City");
+        fromTitle.setTextAlignment(TextAlignment.LEFT);
+        fromTitle.setFontSize(9);
+        fromTitle.setBold();
+        fromTitle.setFontColor(grayRgb);
+        fromTitle.setFont(montserratFont);
+        fromList.add(fromTitle);
+
+        for (ResumeDataDto.CityEntity cityEntity : cityEntities) {
+            ListItem companyTitle = new ListItem("\u2022 " + cityEntity.getName());
+            companyTitle.setTextAlignment(TextAlignment.LEFT);
+            companyTitle.setFontSize(8);
+            companyTitle.setFont(montserratFont);
+            fromList.add(companyTitle);
+        }
+
+        Cell fromDetailCell = new Cell();
+        fromDetailCell.add(fromList);
+        fromDetailCell.setBorder(Border.NO_BORDER); // Remove borders for this specific cell
+        table.addCell(fromDetailCell);
+    }
+
+    private void setState(Table table, PdfFont montserratFont, java.util.List<ResumeDataDto.StateEntity> stateEntities) {
+
+        List fromList = new List();
+        fromList.setListSymbol("");
+
+        ListItem fromTitle = new ListItem("State");
+        fromTitle.setTextAlignment(TextAlignment.LEFT);
+        fromTitle.setFontSize(9);
+        fromTitle.setBold();
+        fromTitle.setFontColor(grayRgb);
+        fromTitle.setFont(montserratFont);
+        fromList.add(fromTitle);
+
+        for (ResumeDataDto.StateEntity stateEntity : stateEntities) {
+            ListItem companyTitle = new ListItem("\u2022 " + stateEntity.getName());
+            companyTitle.setTextAlignment(TextAlignment.LEFT);
+            companyTitle.setFontSize(8);
+            companyTitle.setFont(montserratFont);
+            fromList.add(companyTitle);
+        }
+
+
+        Cell fromDetailCell = new Cell();
+        fromDetailCell.add(fromList);
+        fromDetailCell.setBorder(Border.NO_BORDER); // Remove borders for this specific cell
+        table.addCell(fromDetailCell);
+    }
+
+    private void setCountry(Table table, PdfFont montserratFont, java.util.List<ResumeDataDto.CountryEntity> regionList) {
+
+        List fromList = new List();
+        fromList.setListSymbol("");
+
+        ListItem fromTitle = new ListItem("Country");
+        fromTitle.setTextAlignment(TextAlignment.LEFT);
+        fromTitle.setFontSize(9);
+        fromTitle.setBold();
+        fromTitle.setFontColor(grayRgb);
+        fromTitle.setFont(montserratFont);
+        fromList.add(fromTitle);
+
+        for (ResumeDataDto.CountryEntity countryEntity : regionList) {
+            ListItem companyTitle = new ListItem("\u2022 " + countryEntity.getName());
+            companyTitle.setTextAlignment(TextAlignment.LEFT);
+            companyTitle.setFontSize(8);
+            companyTitle.setFont(montserratFont);
+            fromList.add(companyTitle);
+        }
+
+        Cell fromDetailCell = new Cell();
+        fromDetailCell.add(fromList);
+        fromDetailCell.setBorder(Border.NO_BORDER); // Remove borders for this specific cell
+        table.addCell(fromDetailCell);
     }
 
     void setLine(Document document, float right, float left) {
@@ -153,7 +508,6 @@ public class JobDetailPdfController {
         summeryTitle.setMarginTop(8);
         document.add(summeryTitle);
 
-        document.add(new Cell().setMargin(5));
         setLine(document, 0, 0);
 
         List fromList = new List();
@@ -182,7 +536,6 @@ public class JobDetailPdfController {
         summeryTitle.setMarginTop(8);
         document.add(summeryTitle);
 
-        document.add(new Cell().setMargin(5));
         setLine(document, 0, 0);
 
         List fromList = new List();
@@ -209,7 +562,6 @@ public class JobDetailPdfController {
         summeryTitle.setMarginTop(8);
         document.add(summeryTitle);
 
-        document.add(new Cell().setMargin(5));
         setLine(document, 0, 0);
 
         org.jsoup.nodes.Document jsoupDocument = Jsoup.parse(jobDto.description);
@@ -280,7 +632,7 @@ public class JobDetailPdfController {
         invoiceDetailListCell.add(invoiceDetailList);
         invoiceDetailListCell.setBorder(Border.NO_BORDER); // Remove borders for this specific cell
         setDetailKeyAndValue(invoiceDetailListCell, montserratFont, "Job ID: ", jobDto.getJobId() + "");
-        setDetailKeyAndValue(invoiceDetailListCell, montserratFont, "Created By: ","Rupesh Mandal");
+        setDetailKeyAndValue(invoiceDetailListCell, montserratFont, "Created By: ", "Rupesh Mandal");
         setDetailKeyAndValue(invoiceDetailListCell, montserratFont, "Creation Date: ", jobDto.getCreatedAt().getDayOfMonth() +
                 "-" + jobDto.getCreatedAt().getMonthValue() + "-" + jobDto.getCreatedAt().getYear());
         table.addCell(invoiceDetailListCell);

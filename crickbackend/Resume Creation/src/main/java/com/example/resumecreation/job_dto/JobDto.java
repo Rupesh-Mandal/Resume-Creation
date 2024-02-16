@@ -1,5 +1,6 @@
 package com.example.resumecreation.job_dto;
 
+import com.example.resumecreation.ResumeDataDto;
 import lombok.*;
 
 import java.time.OffsetDateTime;
@@ -47,5 +48,11 @@ public class JobDto {
     public Long financialNegotiationCount;
     public Long sentToClintCount;
     public Long hiredCount;
+    public List<SpokenLanguageEntity> spokenLanguageEntities;
+    private WorkTypeEntity workTypeEntity;
+    private ResumeDataDto.EmploymentTypeEntity employmentTypeEntity;
 
+    private List<ResumeDataDto.CountryEntity> regionList;
+    private List<ResumeDataDto.StateEntity> stateEntities;
+    private List<ResumeDataDto.CityEntity> cityEntities;
 }
