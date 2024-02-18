@@ -73,7 +73,7 @@ public class Controller {
     }
 
     private ByteArrayOutputStream generatePDFAndRetern() throws IOException {
-        ResponseEntity<ResumeDataDto> responseEntity = restTemplate.getForEntity("http://157.230.30.255:8080/kakoo-back-end/api/v1/pipeline/get-candidate-resume-for-job/239/candidate-id/228", ResumeDataDto.class);
+        ResponseEntity<ResumeDataDto> responseEntity = restTemplate.getForEntity("https://web.kakoo-software.com/kakoo-back-end/api/v1/pipeline/get-candidate-resume-for-job/377/candidate-id/330", ResumeDataDto.class);
         ResumeDataDto resumeDataDto = responseEntity.getBody();
         String outputDateFormat = "MMM dd, yyyy";
 
