@@ -5,6 +5,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.util.Arrays;
 
 import com.itextpdf.io.font.PdfEncodings;
 import com.itextpdf.io.image.ImageData;
@@ -24,20 +25,23 @@ import com.itextpdf.layout.properties.HorizontalAlignment;
 import com.itextpdf.layout.properties.TextAlignment;
 import com.itextpdf.layout.properties.UnitValue;
 import com.itextpdf.layout.properties.VerticalAlignment;
+import org.jsoup.nodes.Element;
+import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
-
+import org.jsoup.Jsoup;
 
 @RestController
 @SpringBootApplication
-public class ResumeCreationApplication {
+public class ResumeCreationApplication implements CommandLineRunner {
 
     public static void main(String[] args) {
         SpringApplication.run(ResumeCreationApplication.class, args);
@@ -270,5 +274,78 @@ public class ResumeCreationApplication {
         }
     }
 
+
+    @Override
+    public void run(String... args) throws Exception {
+        String rawData = "-, LA REDOUTE, Paiement & Fraude\n" +
+                "Chef de Projet Monétique\n" +
+                "Mise en conformité DSP2 (3DSv2 et choix de la marque)\n" +
+                "O Participation active aux ateliers de l'OSMP (Observatoire de la Sécurité des Moyens de paiement)\n" +
+                "Gestion de l'authentification renforcée DSP2\n" +
+                "O\n" +
+                "O Coordination avec les métiers, les équipes IT et les partenaires externes (PSP, banques, schemes)\n" +
+                "Réalisation d'études (analyse d'impact, études préalables, d'opportunité, de faisabilité)\n" +
+                "O\n" +
+                "O\n" +
+                "Rédaction de cahiers des charges et spécifications fonctionnelles\n" +
+                "O\n" +
+                "O\n" +
+                "Intégration du nouveau PSP/PAT Stripe\n" +
+                "O Participation active aux études de cadrage en amont : ateliers, définition des règles de gestion et\n" +
+                "maîtrise des processus métiers\n" +
+                "O Analyse d'impact des besoins métiers existants\n" +
+                "O Participation aux phases de test d'intégration, de formation et de recette utilisateur\n" +
+                "(définition de la stratégie et du plan de test, déroulement et suivi des cas de tests)\n" +
+                "Définition de la stratégie de recette et pilotage de la réalisation\n" +
+                "Gestion du périmètre applicatif (maintenance, incidents, solutions)\n" +
+                "Intégration d'une nouvelle Banque Acquéreur\n" +
+                "O Participation active aux études de cadrage en amont - Analyse d'impact\n" +
+                "O Participation aux phases de test d'intégration, de formation et de recette utilisateur\n" +
+                "Dans le cadre de l'équipe Monétique, gestion des diverses évolutions\n" +
+                "O Proposition de nouveaux moyens de paiement sur les sites e-commerce de la Redoute\n" +
+                "O Amélioration du taux de conversion\n" +
+                "O Optimisation des outils Data pour le suivi des KPIs et des incidents opérationnels\n" +
+                "O\n" +
+                "Suivi du bon déroulement des ventes en ligne :\n" +
+                "✓ Gestion de la sécurité de paiement\n" +
+                "Qualité du service et SAV\n" +
+                "Pour chacune des évolutions\n" +
+                "O\n" +
+                "Etude et analyse des demandes\n" +
+                "Suivi des livraisons et des travaux de la maîtrise d'œuvre\n" +
+                "Pilotage des contributeurs\n" +
+                "O Animation des comités projets et de suivi MOA-MOE\n" +
+                "oo\n" +
+                "✓ Elaboration des stratégies web de l'entreprise.\n" +
+                "✓ Pilotage des prestataires (Monext, Ingenico, Amex, Limonetik/Thunes...)";
+
+        // Use Jsoup to parse the raw string
+        org.jsoup.nodes.Document document = Jsoup.parse(rawData);
+
+        // Extract text content from the parsed document
+        String formattedText = document.text();
+
+        // Print the formatted text
+        System.out.println(formattedText);
+
+    }
+
+    private static String convertToHtml(String textData) {
+        // Split text into lines
+        String[] lines = textData.split("\\n");
+
+        // Create an HTML document
+        org.jsoup.nodes.Document document = Jsoup.parse("<html><body></body></html>");
+        org.jsoup.nodes.Element body = document.body();
+
+        // Iterate through lines and append them as paragraphs to the body
+        for (String line : lines) {
+            body.append("<p>").append(line).append("</p>");
+        }
+
+        // Get the HTML content
+        return document.html();
+    }
+    // Helper method to convert raw data to HTML
 
 }

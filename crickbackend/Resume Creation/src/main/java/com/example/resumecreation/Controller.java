@@ -43,6 +43,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.Objects;
 import java.util.TimeZone;
+import java.util.regex.Pattern;
 
 @RequiredArgsConstructor
 @RestController
@@ -73,7 +74,8 @@ public class Controller {
     }
 
     private ByteArrayOutputStream generatePDFAndRetern() throws IOException {
-        ResponseEntity<ResumeDataDto> responseEntity = restTemplate.getForEntity("https://web.kakoo-software.com/kakoo-back-end/api/v1/pipeline/get-candidate-resume-for-job/377/candidate-id/330", ResumeDataDto.class);
+        ResponseEntity<ResumeDataDto> responseEntity =
+                restTemplate.getForEntity("https://web.kakoo-software.com/kakoo-back-end/api/v1/pipeline/get-candidate-resume-for-job/386/candidate-id/358", ResumeDataDto.class);
         ResumeDataDto resumeDataDto = responseEntity.getBody();
         String outputDateFormat = "MMM dd, yyyy";
 
@@ -797,11 +799,25 @@ public class Controller {
                     // Handle list item
                     summeryDtailsParagraph = new Paragraph("\u2022 " + childElement.text());
 
-                } else {
+                }else if (childElement.tagName().equals("br")){
+                    summeryDtailsParagraph = new Paragraph("\u2022 " + childElement.text());
+                }else {
                     if (i > 0) {
                         summeryDtailsParagraph = new Paragraph(childElement.text());
                     } else {
-                        summeryDtailsParagraph = new Paragraph("\n" + childElement.text());
+                        String modifiedText = childElement.html().replaceAll("<br />", "\n");
+                        modifiedText=modifiedText.replaceAll("●<br>","\n");
+                        modifiedText=modifiedText.replaceAll("0<br>","\n");
+                        modifiedText=modifiedText.replaceAll("<br>","");
+                        modifiedText=modifiedText.replaceAll("●","");
+                        String result = Pattern.compile("\\n+").matcher(modifiedText).replaceAll("\n");;
+
+                        for (int j = 0; j < 50; j++) {
+                            result = result.replaceAll(" \n" + " \n" , "\n");
+                            result = result.replaceAll("\n" + "\n", "\n");
+                            result = result.replaceAll("\n" + " \n", "\n");
+                        }
+                        summeryDtailsParagraph = new Paragraph(result);
                     }
                 }
                 summeryDtailsParagraph.setTextAlignment(TextAlignment.LEFT);

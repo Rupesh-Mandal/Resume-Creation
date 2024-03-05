@@ -21,6 +21,7 @@ import lombok.RequiredArgsConstructor;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Element;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.FileCopyUtils;
@@ -73,7 +74,7 @@ public class ResumeV2Controller {
 
 
     private ByteArrayOutputStream generatePDFAndRetern() throws IOException {
-        ResponseEntity<ResumeDataDto> responseEntity = restTemplate.getForEntity("https://web.kakoo-software.com/kakoo-back-end/api/v1/pipeline/get-candidate-resume-for-job/377/candidate-id/330", ResumeDataDto.class);
+        ResponseEntity<ResumeDataDto> responseEntity = restTemplate.getForEntity("https://web.kakoo-software.com/kakoo-back-end/api/v1/pipeline/get-candidate-resume-for-job/382/candidate-id/269", ResumeDataDto.class);
         ResumeDataDto resumeDataDto = responseEntity.getBody();
         String outputDateFormat = "MMM dd, yyyy";
 
@@ -99,7 +100,7 @@ public class ResumeV2Controller {
         topTable.addCell(getSecondCell(resumeDataDto, montserratFont));
         // Set the background color of the cell at index 0
         Cell cellAtIndex0 = topTable.getCell(0, 0);
-        cellAtIndex0.setBackgroundColor(new DeviceRgb(25, 42, 86)); // Light blue color
+        cellAtIndex0.setBackgroundColor(new DeviceRgb(61, 89, 77)); // Light blue color
         topTable.setMinHeight(document.getPdfDocument().getDefaultPageSize().getHeight() - document.getTopMargin() - document.getBottomMargin());
 
 
@@ -114,48 +115,48 @@ public class ResumeV2Controller {
     Cell getSecondCell(ResumeDataDto resumeDataDto, PdfFont montserratFont) {
         Cell cell = new Cell();
         cell.setPadding(20);
-        setCandidateIdAndJobId(cell,resumeDataDto,montserratFont);
+        setCandidateIdAndJobId(cell, resumeDataDto, montserratFont);
 
         cell.add(new Cell().setMarginTop(20));
         if (!Objects.isNull(resumeDataDto.isPersonalDetails) && resumeDataDto.isPersonalDetails &&
                 !Objects.isNull(resumeDataDto.getIsFullName()) && resumeDataDto.getIsFullName() &&
                 !Objects.isNull(resumeDataDto.getFullName()) && !resumeDataDto.getFullName().isEmpty()) {
-            setFullNameDetails(cell,resumeDataDto,montserratFont);
+            setFullNameDetails(cell, resumeDataDto, montserratFont);
         }
         if (!Objects.isNull(resumeDataDto.isPersonalDetails) && resumeDataDto.isPersonalDetails &&
                 !Objects.isNull(resumeDataDto.isJobTitle) && resumeDataDto.isJobTitle &&
                 !Objects.isNull(resumeDataDto.jobTitle) && !resumeDataDto.jobTitle.isEmpty()) {
-            setJobTitleDetails(cell,resumeDataDto,montserratFont);
+            setJobTitleDetails(cell, resumeDataDto, montserratFont);
         }
 
         if (!Objects.isNull(resumeDataDto.isAboutContent) && resumeDataDto.isAboutContent &&
                 !Objects.isNull(resumeDataDto.aboutContent) && !resumeDataDto.aboutContent.isEmpty()) {
-            setAboutSummery(cell,resumeDataDto,montserratFont);
+            setAboutSummery(cell, resumeDataDto, montserratFont);
         }
 
-        if (!Objects.isNull(resumeDataDto.isPersonalDetails) && resumeDataDto.isPersonalDetails){
-            setCandidatePerformans(cell,resumeDataDto,montserratFont);
+        if (!Objects.isNull(resumeDataDto.isPersonalDetails) && resumeDataDto.isPersonalDetails) {
+            setCandidatePerformans(cell, resumeDataDto, montserratFont);
         }
 
         if (!Objects.isNull(resumeDataDto.getIsWorkExperienceEntities()) && resumeDataDto.getIsWorkExperienceEntities()) {
             if (!Objects.isNull(resumeDataDto.getWorkExperienceEntities()) && !resumeDataDto.getWorkExperienceEntities().isEmpty()) {
-                setExperience(cell,resumeDataDto,montserratFont);
+                setExperience(cell, resumeDataDto, montserratFont);
             }
         }
 
         if (!Objects.isNull(resumeDataDto.getIsProjectPortfolioEntities()) && resumeDataDto.getIsProjectPortfolioEntities()) {
             if (!Objects.isNull(resumeDataDto.getProjectPortfolioEntities()) && !resumeDataDto.getProjectPortfolioEntities().isEmpty()) {
-                setRecentProject(cell,resumeDataDto,montserratFont);
+                setRecentProject(cell, resumeDataDto, montserratFont);
             }
         }
         if (!Objects.isNull(resumeDataDto.isOtherSkill) && resumeDataDto.isOtherSkill &&
                 !Objects.isNull(resumeDataDto.otherSkill) && !resumeDataDto.otherSkill.isEmpty()) {
-            setOtherSkills(cell,resumeDataDto,montserratFont);
+            setOtherSkills(cell, resumeDataDto, montserratFont);
         }
 
         if (!Objects.isNull(resumeDataDto.getIsCustomDetails()) && resumeDataDto.getIsCustomDetails()) {
             if (!Objects.isNull(resumeDataDto.getCustomDetails()) && !resumeDataDto.getCustomDetails().isEmpty()) {
-                setOtherDetails(cell,resumeDataDto,montserratFont);
+                setOtherDetails(cell, resumeDataDto, montserratFont);
             }
         }
 
@@ -171,7 +172,7 @@ public class ResumeV2Controller {
         summeryTitle.setFont(montserratFont);
         summeryTitle.setMarginTop(15);
         cell.add(summeryTitle);
-        setLine(cell,0,0);
+        setLine(cell, 0, 0);
 
         for (ResumeDataDto.CustomDetails customDetail : resumeDataDto.getCustomDetails()) {
             if (!Objects.isNull(customDetail.fieldName) && !customDetail.fieldName.isEmpty()) {
@@ -224,7 +225,7 @@ public class ResumeV2Controller {
         summeryTitle.setFont(montserratFont);
         summeryTitle.setMarginTop(15);
         cell.add(summeryTitle);
-        setLine(cell,0,0);
+        setLine(cell, 0, 0);
 
         org.jsoup.nodes.Document jsoupDocument = Jsoup.parse(resumeDataDto.otherSkill);
         try {
@@ -278,7 +279,7 @@ public class ResumeV2Controller {
         summeryTitle.setMarginTop(15);
         cell.add(summeryTitle);
 
-        setLine(cell,0,0);
+        setLine(cell, 0, 0);
         for (ResumeDataDto.ProjectPortfolioEntity projectPortfolioEntity : resumeDataDto.getProjectPortfolioEntities()) {
             Cell marginCell = new Cell();
             marginCell.setMarginTop(4);
@@ -298,6 +299,7 @@ public class ResumeV2Controller {
             }
             if (!Objects.isNull(projectPortfolioEntity.isProjectDescription) && projectPortfolioEntity.isProjectDescription &&
                     !Objects.isNull(projectPortfolioEntity.projectDescription) && !projectPortfolioEntity.projectDescription.isEmpty()) {
+
                 Paragraph descriptionParagraph = new Paragraph(Jsoup.parse(projectPortfolioEntity.projectDescription).text());
                 descriptionParagraph.setTextAlignment(TextAlignment.LEFT);
                 descriptionParagraph.setFontSize(8);
@@ -322,7 +324,7 @@ public class ResumeV2Controller {
         summeryTitle.setMarginTop(15);
         cell.add(summeryTitle);
 
-        setLine(cell,0,0);
+        setLine(cell, 0, 0);
         String outputDateFormat = "MMM dd, yyyy";
 
 
@@ -411,15 +413,21 @@ public class ResumeV2Controller {
 
             if (!Objects.isNull(workExperienceEntity.isDescription) && workExperienceEntity.isDescription &&
                     !Objects.isNull(workExperienceEntity.description) && !workExperienceEntity.description.isEmpty()) {
-                Paragraph descriptionParagraph = new Paragraph(Jsoup.parse(workExperienceEntity.description).text());
-                descriptionParagraph.setTextAlignment(TextAlignment.LEFT);
-                descriptionParagraph.setFontSize(8);
-                descriptionParagraph.setFont(montserratFont);
-                descriptionParagraph.setPaddingLeft(5);
-                descriptionParagraph.setPaddingRight(5);
-                descriptionParagraph.setFontColor(grayRgb);
-                descriptionParagraph.setMarginTop(-3);
-                cell.add(descriptionParagraph);
+
+                try {
+                    org.jsoup.nodes.Document jsoupDocument = Jsoup.parse(workExperienceEntity.description);
+                    processHtmlElementsForSummery(jsoupDocument.body(), cell, -3, 5, 5);
+                } catch (Exception e) {
+                    Paragraph descriptionParagraph = new Paragraph(Jsoup.parse(workExperienceEntity.description).text());
+                    descriptionParagraph.setTextAlignment(TextAlignment.LEFT);
+                    descriptionParagraph.setFontSize(8);
+                    descriptionParagraph.setFont(montserratFont);
+                    descriptionParagraph.setPaddingLeft(5);
+                    descriptionParagraph.setPaddingRight(5);
+                    descriptionParagraph.setFontColor(grayRgb);
+                    descriptionParagraph.setMarginTop(-3);
+                    cell.add(descriptionParagraph);
+                }
             }
 
 
@@ -437,7 +445,7 @@ public class ResumeV2Controller {
         summeryTitle.setMarginTop(15);
         cell.add(summeryTitle);
 
-        setLine(cell,0,0);
+        setLine(cell, 0, 0);
 
 
         Table headerTable = new Table(UnitValue.createPercentArray(3)).useAllAvailableWidth();
@@ -447,61 +455,62 @@ public class ResumeV2Controller {
         if (!Objects.isNull(resumeDataDto.isPersonalDetails) && resumeDataDto.isPersonalDetails &&
                 !Objects.isNull(resumeDataDto.isTotalExperience) && resumeDataDto.isTotalExperience &&
                 !Objects.isNull(resumeDataDto.totalExperience)) {
-            otherAssessmentKeyAndValue(headerTable,montserratFont,"Experience",resumeDataDto.totalExperience + " Years");
+            otherAssessmentKeyAndValue(headerTable, montserratFont, "Experience", resumeDataDto.totalExperience + " Years");
         }
 
         if (!Objects.isNull(resumeDataDto.isPersonalDetails) && resumeDataDto.isPersonalDetails &&
                 !Objects.isNull(resumeDataDto.isAvailability) && resumeDataDto.isAvailability &&
                 !Objects.isNull(resumeDataDto.availability) && !resumeDataDto.availability.isEmpty()) {
-            otherAssessmentKeyAndValue(headerTable,montserratFont,"Availability",resumeDataDto.availability);
+            otherAssessmentKeyAndValue(headerTable, montserratFont, "Availability", resumeDataDto.availability);
         }
 
         if (!Objects.isNull(resumeDataDto.isPersonalDetails) && resumeDataDto.isPersonalDetails &&
                 !Objects.isNull(resumeDataDto.isEmploymentTypeEntity) && resumeDataDto.isEmploymentTypeEntity &&
                 !Objects.isNull(resumeDataDto.getEmploymentTypeEntity()) &&
                 !Objects.isNull(resumeDataDto.getEmploymentTypeEntity().name) && !resumeDataDto.getEmploymentTypeEntity().name.isEmpty()) {
-            otherAssessmentKeyAndValue(headerTable,montserratFont,"Employment Type",resumeDataDto.getEmploymentTypeEntity().name);
+            otherAssessmentKeyAndValue(headerTable, montserratFont, "Employment Type", resumeDataDto.getEmploymentTypeEntity().name);
         }
 
         if (!Objects.isNull(resumeDataDto.isPersonalDetails) && resumeDataDto.isPersonalDetails &&
                 !Objects.isNull(resumeDataDto.isDesiredWorkType) && resumeDataDto.isDesiredWorkType &&
                 !Objects.isNull(resumeDataDto.desiredWorkType) && !resumeDataDto.desiredWorkType.isEmpty()) {
-            otherAssessmentKeyAndValue(headerTable,montserratFont,"Work Type",resumeDataDto.desiredWorkType);
+            otherAssessmentKeyAndValue(headerTable, montserratFont, "Work Type", resumeDataDto.desiredWorkType);
         }
 
 
         if (!Objects.isNull(resumeDataDto.isPersonalDetails) && resumeDataDto.isPersonalDetails &&
                 !Objects.isNull(resumeDataDto.isNationality) && resumeDataDto.isNationality &&
                 !Objects.isNull(resumeDataDto.nationality) && !resumeDataDto.nationality.isEmpty()) {
-            otherAssessmentKeyAndValue(headerTable,montserratFont,"Nationality",resumeDataDto.nationality);
+            otherAssessmentKeyAndValue(headerTable, montserratFont, "Nationality", resumeDataDto.nationality);
         }
 
         if (!Objects.isNull(resumeDataDto.isPersonalDetails) && resumeDataDto.isPersonalDetails &&
                 !Objects.isNull(resumeDataDto.isLocation) && resumeDataDto.isLocation &&
                 !Objects.isNull(resumeDataDto.location) && !resumeDataDto.location.isEmpty()) {
-            otherAssessmentKeyAndValue(headerTable,montserratFont,"Location",resumeDataDto.location);
+            otherAssessmentKeyAndValue(headerTable, montserratFont, "Location", resumeDataDto.location);
         }
 
         if (!Objects.isNull(resumeDataDto.isPersonalDetails) && resumeDataDto.isPersonalDetails &&
                 !Objects.isNull(resumeDataDto.isScoreV) && resumeDataDto.isScoreV &&
                 !Objects.isNull(resumeDataDto.getScoreV())) {
-            otherAssessmentKeyAndValue(headerTable,montserratFont,"Assessment Score",resumeDataDto.getScoreV() + "%");
+            otherAssessmentKeyAndValue(headerTable, montserratFont, "Assessment Score", resumeDataDto.getScoreV() + "%");
         }
 
         if (!Objects.isNull(resumeDataDto.isPersonalDetails) && resumeDataDto.isPersonalDetails &&
                 !Objects.isNull(resumeDataDto.isEvaluation) && resumeDataDto.isEvaluation &&
-                !Objects.isNull(resumeDataDto.getEvaluation()) && resumeDataDto.getEvaluation()>0) {
-            String s="";
+                !Objects.isNull(resumeDataDto.getEvaluation()) && resumeDataDto.getEvaluation() > 0) {
+            String s = "";
             for (Integer i = 0; i < resumeDataDto.getEvaluation(); i++) {
-                s=s+"* ";
+                s = s + "* ";
             }
-            otherAssessmentKeyAndValue(headerTable,montserratFont,"Evaluation",s);
+            otherAssessmentKeyAndValue(headerTable, montserratFont, "Evaluation", s);
 
         }
         cell.setBorder(Border.NO_BORDER);
         cell.add(headerTable);
     }
-    void otherAssessmentKeyAndValue(Table headerTable, PdfFont montserratFont, String key, String value){
+
+    void otherAssessmentKeyAndValue(Table headerTable, PdfFont montserratFont, String key, String value) {
         Paragraph paragraph1 = new Paragraph(key);
         paragraph1.setTextAlignment(TextAlignment.LEFT);
         paragraph1.setFontSize(8);
@@ -515,7 +524,7 @@ public class ResumeV2Controller {
         paragraph2.setFontColor(grayRgb);
         paragraph2.setFont(montserratFont);
 
-        Cell cell=new Cell();
+        Cell cell = new Cell();
         cell.add(paragraph1);
         cell.add(new Paragraph(""));
         cell.add(paragraph2);
@@ -527,11 +536,11 @@ public class ResumeV2Controller {
         cell.setBorder(Border.NO_BORDER); // Set border color and width
         cell.setBorderRadius(new BorderRadius(5));
         cell.setBackgroundColor(grayRgb2); // Optional background color
-        cell.setPaddings(4,8,4,8);
+        cell.setPaddings(4, 8, 4, 8);
         table.addCell(cell);
         table.setMargin(2);
 
-        Cell cell2=new Cell();
+        Cell cell2 = new Cell();
         cell2.add(table);
         cell2.setBorder(Border.NO_BORDER);
         headerTable.addCell(cell2);
@@ -539,15 +548,16 @@ public class ResumeV2Controller {
     }
 
     private void setAboutSummery(Cell cell, ResumeDataDto resumeDataDto, PdfFont montserratFont) {
-        org.jsoup.nodes.Document jsoupDocument = Jsoup.parse(resumeDataDto.aboutContent);
+        String value="Payment Technical Support Analyst à Market Pay pour Carrefour :\\no Gestion et analyse des incidents et demandes de services dans le respect des SLA ;\\no Monitoring des flux (Grafana), détection et analyse des anomalies/incidents ;\\no Animation des conférences de crise, mobilisation des équipes et coordination de la résolution;\\no Suivi, et communication en permanence aux clients des incidents majeurs; Réalisation des analyses\\nd'impact technique et financier ;\\no Analyse, investigation et réponse aux sollicitations du client;\\no Participation aux réunions périodiques avec le client et les fournisseurs (Worldline, banques ...) ; Rédaction\\ndes comptes rendus;\\no Surveillance de l'activité /Analyse des Alertes ;\\no Evolution des outils de monitoring et ticketing existants (Jira) tout en respectant les priorités ;\\no Rédaction des procédures Run, guide utilisateurs ...\\no Grande autonomie sur le périmètre ;";
+        org.jsoup.nodes.Document jsoupDocument = Jsoup.parse(value);
         try {
-            processHtmlElementsForSummery(jsoupDocument.body(), cell);
+            processHtmlElementsForSummery(jsoupDocument.body(), cell, -10, 0, 0);
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    private void processHtmlElementsForSummery(Element element, Cell cell) throws IOException {
+    private void processHtmlElementsForSummery(Element element, Cell cell, float marginTo, float paddingLeft, float paddingRight) throws IOException {
         PdfFont montserratFont = PdfFontFactory.createFont(fontPath);
         for (int i = 0; i < element.childNodes().size(); i++) {
             org.jsoup.nodes.Node node = element.childNodes().get(i);
@@ -559,7 +569,7 @@ public class ResumeV2Controller {
                 // For demonstration purposes, let's assume we are only interested in <ul> and <li> tags
                 if (childElement.tagName().equals("ul") || childElement.tagName().equals("ol")) {
                     // Handle unordered list
-                    processHtmlElementsForSummery(childElement, cell);
+                    processHtmlElementsForSummery(childElement, cell, marginTo, paddingLeft, paddingRight);
                 } else if (childElement.tagName().equals("li")) {
                     // Handle list item
                     summeryDtailsParagraph = new Paragraph("\u2022 " + childElement.text());
@@ -575,7 +585,9 @@ public class ResumeV2Controller {
                 summeryDtailsParagraph.setFontSize(8);
                 summeryDtailsParagraph.setFont(montserratFont);
                 summeryDtailsParagraph.setFontColor(grayRgb);
-                summeryDtailsParagraph.setMarginTop(-10);
+                summeryDtailsParagraph.setMarginTop(marginTo);
+                summeryDtailsParagraph.setPaddingLeft(paddingLeft);
+                summeryDtailsParagraph.setPaddingRight(paddingRight);
                 cell.add(summeryDtailsParagraph); // Use bullet point for list items
             }
         }
@@ -618,7 +630,7 @@ public class ResumeV2Controller {
         cell.setPadding(10);
         try {
             setCandidateImage(resumeDataDto, cell);
-        } catch (MalformedURLException e) {
+        } catch (Exception e) {
 
         }
         setContactDetails(cell, resumeDataDto, montserratFont);
@@ -640,7 +652,6 @@ public class ResumeV2Controller {
                 !Objects.isNull(resumeDataDto.getSkillListEntities()) && !resumeDataDto.getSkillListEntities().isEmpty()) {
             setExpertiesDetails(cell, resumeDataDto, montserratFont);
         }
-
 
 
         if (!Objects.isNull(resumeDataDto.isLanguageEntities) && resumeDataDto.isLanguageEntities) {
@@ -740,12 +751,12 @@ public class ResumeV2Controller {
         setLine(cell, 0, 0);
 
         for (ResumeDataDto.CandidateCertificateEntity candidateCertificateEntity : resumeDataDto.getCandidateCertificateEntities()) {
-            String key="";
-            String value="";
+            String key = "";
+            String value = "";
 
             if (!Objects.isNull(candidateCertificateEntity.getIsName()) && candidateCertificateEntity.getIsName() &&
                     !Objects.isNull(candidateCertificateEntity.getName()) && !candidateCertificateEntity.getName().isEmpty()) {
-                key=candidateCertificateEntity.getName();
+                key = candidateCertificateEntity.getName();
             }
             if (!Objects.isNull(candidateCertificateEntity.getIsInstitution()) && candidateCertificateEntity.getIsInstitution()) {
                 String title = "";
@@ -754,7 +765,7 @@ public class ResumeV2Controller {
                         !Objects.isNull(candidateCertificateEntity.getYear()) && !candidateCertificateEntity.getYear().isEmpty()) {
                     title = title + ", " + candidateCertificateEntity.getYear();
                 }
-                value=title;
+                value = title;
             }
             setKeyAndValue(key, value, null, cell, montserratFont);
         }
@@ -774,22 +785,22 @@ public class ResumeV2Controller {
         setLine(cell, 0, 0);
 
         for (ResumeDataDto.CandidateEducationEntity candidateEducationEntity : resumeDataDto.getCandidateEducationEntities()) {
-            String key="";
-            String value="";
-            String year="";
+            String key = "";
+            String value = "";
+            String year = "";
 
             if (!Objects.isNull(candidateEducationEntity.getIsDegreeName()) && candidateEducationEntity.getIsDegreeName() &&
                     !Objects.isNull(candidateEducationEntity.getDegreeName()) && !candidateEducationEntity.getDegreeName().isEmpty()) {
-                key=candidateEducationEntity.getDegreeName();
+                key = candidateEducationEntity.getDegreeName();
 
                 if (!Objects.isNull(candidateEducationEntity.getIsYear()) && candidateEducationEntity.getIsYear() &&
                         !Objects.isNull(candidateEducationEntity.getYear()) && !candidateEducationEntity.getYear().isEmpty()) {
-                    year= candidateEducationEntity.getYear();
+                    year = candidateEducationEntity.getYear();
                 }
             }
             if (!Objects.isNull(candidateEducationEntity.getIsCollege()) && candidateEducationEntity.getIsCollege() &&
                     !Objects.isNull(candidateEducationEntity.getCollege()) && !candidateEducationEntity.getCollege().isEmpty()) {
-                value=candidateEducationEntity.getCollege();
+                value = candidateEducationEntity.getCollege();
             }
             setKeyAndValue(key, value, year, cell, montserratFont);
         }
@@ -836,7 +847,7 @@ public class ResumeV2Controller {
         List list = new List();
         list.setListSymbol("");
 
-        Boolean isYear=false;
+        Boolean isYear = false;
 
         if (!Objects.isNull(year) && !year.trim().isEmpty()) {
             ListItem yearTitle = new ListItem(year);
@@ -846,14 +857,14 @@ public class ResumeV2Controller {
             yearTitle.setFont(montserratFont);
             yearTitle.setMarginTop(5);
             list.add(yearTitle);
-            isYear=true;
+            isYear = true;
         }
 
         ListItem keyTitle = new ListItem(key);
         keyTitle.setTextAlignment(TextAlignment.LEFT);
         keyTitle.setFontSize(9);
         keyTitle.setBold();
-        if (!isYear){
+        if (!isYear) {
             keyTitle.setMarginTop(5);
         }
         keyTitle.setFontColor(whiteRgb);
@@ -861,7 +872,7 @@ public class ResumeV2Controller {
         list.add(keyTitle);
 
 
-        if (!Objects.isNull(value) && !value.trim().isEmpty()){
+        if (!Objects.isNull(value) && !value.trim().isEmpty()) {
             ListItem valueTitle = new ListItem(value);
             valueTitle.setTextAlignment(TextAlignment.LEFT);
             valueTitle.setFontSize(8);
@@ -885,16 +896,18 @@ public class ResumeV2Controller {
         document.add(headerTable);
     }
 
-    private void setCandidateImage(ResumeDataDto resumeDataDto, Cell cell) throws MalformedURLException {
+    private void setCandidateImage(ResumeDataDto resumeDataDto, Cell cell) throws IOException {
+        Image image = null;
+        try {
+            String imageUrl = "https://web.kakoo-software.com/kakoo-back-end/" + "company/" + 81 + "/downloadPhoto";
+            image = new Image(ImageDataFactory.create(new URL(imageUrl)));
 
-        String imageUrl = "https://riminder-documents-eu-2019-12.s3-eu-west-1.amazonaws.com/teams/8de1f7d3bfe162ffd05cf48c751be484925f59b0/sources/8deeb6d541de3c7982e01e2e242eaf851eeb5e74/profiles/bdeee11832f60dada962e69d3cb6b33e63f95052/parsing/picture.png";
-
-        // Create an Image object from the URL
-        Image image = new Image(ImageDataFactory.create(new URL(imageUrl)));
-
-//                    Image image = new Image(ImageDataFactory.create("/home/rupesh-mandal/IdeaProjects/CrickInformer/crickbackend/Resume Creation/src/main/resources/static/logo.png"));
+        } catch (Exception e) {
+            ClassPathResource resource = new ClassPathResource("/static/logo_kakoo.png");
+            image = new Image(ImageDataFactory.create(resource.getURL()));
+        }
         image.setMargins(10, 5, 5, 5);
-        image.scaleToFit(70f, 70f);
+        image.scaleToFit(100f, 70f);
         image.setTextAlignment(TextAlignment.CENTER);
         image.setHorizontalAlignment(HorizontalAlignment.CENTER);
         image.setBorderRadius(new BorderRadius(15));
@@ -903,7 +916,6 @@ public class ResumeV2Controller {
         imageCell.setBorder(Border.NO_BORDER); // Remove borders for this specific cell
         cell.add(imageCell);
     }
-
 
 
 }
